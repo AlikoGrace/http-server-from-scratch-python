@@ -13,15 +13,30 @@ def main():
     request_line=data.split(b"\r\n")[0]
     parts=request_line.split(b" ")
     path=parts[1]
+    
 
-    if path == (b"/"):
-        connection.sendall(b"HTTP/1.1 200 OK\r\n\r\n")
+    if path.startswith(b"/echo/"):
+        message=path[len(b"/echo/"):]
+        body=message
+
+        response=(
+            b"HTTP/1.1 200 OK\r\n"
+            b"Content-Type: text/plain\r\n"
+            +b"Content-Length: "+str(len(body)).encode()
+            +b"\r\n"
+            +b"\r\n"
+
+            +body
+
+        )
+    elif path == (b"/"):
+         response=b"HTTP/1.1 200 OK\r\n\r\n"
 
     else:
-        connection.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n")
+        response=b"HTTP/1.1 404 Not Found\r\n\r\n"
   
 
-
+    connection.sendall(response)
     connection.close()   
 
 
