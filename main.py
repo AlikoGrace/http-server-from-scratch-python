@@ -15,9 +15,15 @@ def main():
     path=parts[1]
     
 
-    if path.startswith(b"/echo/"):
-        message=path[len(b"/echo/"):]
-        body=message
+
+    if path==b"/user-agent":
+        lines=data.split(b"\r\n")
+        body=b""
+
+        for line in lines:
+            if line.lower().startswith(b"user-agent"):
+                body=line[len(b"user-agent: "):]
+                break
 
         response=(
             b"HTTP/1.1 200 OK\r\n"
@@ -29,6 +35,20 @@ def main():
             +body
 
         )
+
+    elif path.startswith(b"/echo/"):
+        body=path[6:]
+        response = (
+            b"HTTP/1.1 200 OK\r\n"
+            b"Content-Type: text/plain\r\n"
+            + b"Content-Length: "
+            + str(len(body)).encode()
+            + b"\r\n"
+            + b"\r\n"
+            + body
+        )    
+
+        
     elif path == (b"/"):
          response=b"HTTP/1.1 200 OK\r\n\r\n"
 
