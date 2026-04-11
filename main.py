@@ -13,12 +13,27 @@ def handle_client(connection):
         parts = request_line.split(b" ")
         path = parts[1]
 
-        if path == b"/user-agent":
+        method=parts[0]
+        
+        header,body=data.split(b"\r\n\r\n", 1)
+
+        if method==b"POST" and path.startswith(b"/files/"):
+            filename=path[len(b"/files/"):]
+            directory=sys.argv[2]
+            full_path=os.path.join(directory,filename.decode())
+
+            with open(full_path,"wb") as f:
+                f.write(body)
+
+            response=b"HTTP/1.1 201 Created\r\n\r\n"
+         
+        
+        elif path == b"/user-agent":
             lines = data.split(b"\r\n")
-            body = b""
+            body = line.split(b": ", 1)[1]
 
             for line in lines:
-                if line.lower().startswith(b"user-agent"):
+                if line.lower().startswith(b"user-agent: "):
                     body = line[len(b"user-agent: "):]
                     break
 
@@ -38,7 +53,7 @@ def handle_client(connection):
 
              try:
                  with open(full_path,"rb")as f:
-                     body=f.read
+                     body=f.read()
                      response=(
 
                       b"HTTP/1.1 200 OK\r\n"
