@@ -1,5 +1,9 @@
 import socket
 import threading
+import  sys
+import os
+
+print(sys.argv)
 
 
 def handle_client(connection):
@@ -26,6 +30,30 @@ def handle_client(connection):
                 + b"\r\n"
                 + body
             )
+        elif path.startswith(b"/files/"):
+             filename=path[len(b"/files/"):]
+             directory=sys.argv[2]
+            #  tester from codecrafter had a temp in main in app so [2] targetted temp
+             full_path=os.path.join(directory,filename.decode())
+
+             try:
+                 with open(full_path,"rb")as f:
+                     body=f.read
+                     response=(
+
+                      b"HTTP/1.1 200 OK\r\n"
+                      b"Content-Type: application/octet-stream\r\n"
+                      + b"Content-Length: " + str(len(body)).encode()
+                      + b"\r\n"
+                      + b"\r\n"
+                      + body
+                 )
+                
+                     
+             except FileNotFoundError:
+                 response=b"HTTP/1.1 404 Not Found\r\n\r\n"         
+                 
+
 
         elif path.startswith(b"/echo/"):
             body = path[6:]
@@ -62,3 +90,13 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+    # def handle_client(connection):
+    # read request
+    # extract path/header info
+    # decide response
+    # send response
+    # all the code is doing 
